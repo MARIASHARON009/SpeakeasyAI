@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🎤 SpeakeasyAI
 
-## Getting Started
+AI-Powered Speaker & Content Management Platform
 
-First, run the development server:
+Organizing events with 200+ speakers is chaotic: incomplete proposals, delayed confirmations, fragmented content, agenda conflicts, and painful event-day logistics.
+SpeakeasyAI solves this by automating the entire speaker lifecycle — from proposal submission → agenda → QR check-in → post-event certificates — with AI-powered assistants and an easy-to-use interface.
 
-```bash
+✨ Features
+👤 Speaker Dashboard
+
+Submit & track session proposals with AI guidance (ProposalBot feedback).
+
+Upload and manage presentation documents (with version alerts).
+
+Confirm availability for self & co-speakers.
+
+Access dynamic agenda updates once published.
+
+Generate QR codes for check-in & T-shirt collection.
+
+Download certificates post-event.
+
+🎛️ Event Manager Dashboard
+
+Review proposals with AI scoring & categorization.
+
+Approve / reject / hold sessions with email notifications.
+
+Drag-and-drop Agenda Builder with conflict detection & track colors.
+
+Enable document upload, briefing calls, and send reminders.
+
+Manage certificate templates & bulk certificate generation.
+
+Track QR check-ins for speakers & merchandise distribution.
+
+Collect and export structured feedback after the event.
+
+🤖 AI Smart Assistants
+
+ProposalBot → Scores abstracts, flags missing fields, suggests improvements.
+
+AgendaAI → Balances tracks, avoids conflicts, recommends diverse topics.
+
+DocGuardian → Validates uploaded docs, ensures template compliance.
+
+Check-In Genie → Generates & validates QR codes for instant check-in.
+
+CertifyAI → Auto-generates personalized speaker certificates.
+
+🛠️ Tech Stack
+
+Frontend / UI → Next.js / Orchid
+ + TailwindCSS
+
+AI Layer → Local rule-based AI + OpenAI/Gemini API (optional)
+
+Backend (Prototype) → LocalStorage (demo) / Firebase (scalable option)
+
+Deployment → Vercel / GitHub Pages
+
+🚀 Getting Started
+1. Clone the repo
+git clone https://github.com/<your-username>/SpeakeasyAI.git
+cd SpeakeasyAI
+
+2. Install dependencies
+npm install
+
+3. Run locally
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+App runs at: http://localhost:3000/
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Deploy
 
-## Learn More
+Push to GitHub → Deploy instantly on Vercel or GitHub Pages.
 
-To learn more about Next.js, take a look at the following resources:
+📸 Demo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🔗 Live Demo:https://untitled-1758964935086.vercel.app/
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🎯 Hackathon Impact
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Reduces 40–50% manual admin work for organizers.
+
+Ensures smooth, conflict-free schedules for attendees.
+
+Gives speakers professional recognition instantly.
+
+Showcases AI innovation in a practical, beginner-friendly build.
+
+
+
+
+📜 License
+
+MIT License © 2025 SpeakeasyAI Team
+
+👉 This README communicates problem, solution, features, and hackathon relevance clearly for judges, while giving developers an easy path to run the project.
