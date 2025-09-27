@@ -4,6 +4,7 @@ import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
 import ErrorReporter from "@/components/ErrorReporter";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner";
+import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "SpeakeasyAI — Event Speakers & Sessions Prototype",
@@ -29,6 +30,7 @@ export default function RootLayout({
           data-debug="true"
           data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
         />
+        <SiteHeader />
         {children}
         <VisualEditsMessenger />
         <Toaster richColors position="top-right" />

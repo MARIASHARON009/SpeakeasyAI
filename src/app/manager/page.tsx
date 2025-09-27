@@ -36,10 +36,13 @@ export default function ManagerPage() {
   const list = submissions.filter((s) => (filter === "all" ? true : s.status === filter));
 
   return (
-    <main className="container mx-auto px-6 py-10 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Event Manager Dashboard</h1>
-        <p className="text-muted-foreground">Review speaker submissions, approve/reject, and manage the agenda.</p>
+    <main className="container mx-auto px-6 py-12 space-y-10">
+      <div className="space-y-3">
+        <div className="inline-flex items-center rounded-full border px-3 py-1 text-xs text-muted-foreground">Manager</div>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">
+          Event Manager Dashboard
+        </h1>
+        <p className="max-w-2xl text-muted-foreground">Review speaker submissions, approve/reject, and manage the agenda.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -49,7 +52,7 @@ export default function ManagerPage() {
             <CardDescription>Filter, review, and take action</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               <Button variant={filter === "all" ? "default" : "secondary"} onClick={() => setFilter("all")}>All</Button>
               <Button variant={filter === "pending" ? "default" : "secondary"} onClick={() => setFilter("pending")}>Pending</Button>
               <Button variant={filter === "approved" ? "default" : "secondary"} onClick={() => setFilter("approved")}>Approved</Button>
