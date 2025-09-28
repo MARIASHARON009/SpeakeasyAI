@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
 /* Updated: 2025-09-28T14:18:36.970Z */
 /* Updated: 2025-09-27T10:05:13.211Z */
 /* Updated: 2025-09-27T08:39:21.646Z */
-@import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -123,6 +125,10 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .logo-font {
+    font-family: "Playfair Display", serif;
+    letter-spacing: -0.02em;
   }
 }
 

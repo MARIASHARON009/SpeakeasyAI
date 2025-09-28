@@ -25,10 +25,30 @@ export type AgendaItem = {
   end: string;   // ISO datetime
 };
 
+// New: Ticketing & Shows
+export type Show = {
+  id: number;
+  title: string;
+  date: string; // ISO datetime or date
+  totalSeats: number;
+};
+
+export type Booking = {
+  id: number;
+  showId: number;
+  qty: number;
+  createdAt: string;
+};
+
 const KEYS = {
   speakers: "speakeasy:speakers",
   submissions: "speakeasy:submissions",
   agenda: "speakeasy:agenda",
+  // New keys
+  shows: "speakeasy:shows",
+  bookings: "speakeasy:bookings",
+  managerPin: "speakeasy:manager:pin",
+  managerAuthed: "speakeasy:manager:authed",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -103,4 +123,91 @@ export function addAgendaItem(item: Omit<AgendaItem, "id">): AgendaItem {
   list.push(next);
   setAgenda(list);
   return next;
+}
+
+// ------------------------------
+// Manager PIN demo auth helpers
+// ------------------------------
+export function getManagerPin(): string | null {
+  return read<string | null>(KEYS.managerPin, null);
+}
+
+export function setManagerPin(pin: string) {
+  write<string | null>(KEYS.managerPin, pin);
+}
+
+export function isManagerAuthed(): boolean {
+  return read<boolean>(KEYS.managerAuthed, false);
+}
+
+export function setManagerAuthed(v: boolean) {
+  write<boolean>(KEYS.managerAuthed, v);
+}
+
+// ------------------------------
+// Shows & Bookings
+// ------------------------------
+export function getShows(): Show[] {
+  return read<Show[]>(KEYS.shows, []);
+}
+
+export function saveShow(s: Omit<Show, "id">): Show {
+  const list = getShows();
+  const next: Show = { id: Date.now(), ...s };
+  list.push(next);
+  write(KEYS.shows, list);
+  return next;
+}
+
+export function deleteShow(id: number) {
+  const list = getShows().filter((s) => s.id !== id);
+  write(KEYS.shows, list);
+  // Also remove related bookings
+  const bookings = getAllBookings().filter((b) => b.showId !== id);
+  write(KEYS.bookings, bookings);
+}
+
+function getAllBookings(): Booking[] {
+  return read<Booking[]>(KEYS.bookings, []);
+}
+
+function setAllBookings(list: Booking[]) {
+  write(KEYS.bookings, list);
+}
+
+export function getBookingsByShow(showId: number): Booking[] {
+  return getAllBookings().filter((b) => b.showId === showId);
+}
+
+export function getBookedSeats(showId: number): number {
+  return getBookingsByShow(showId).reduce((sum, b) => sum + b.qty, 0);
+}
+
+export function getAvailableSeats(showId: number): number {
+  const show = getShows().find((s) => s.id === showId);
+  if (!show) return 0;
+  return Math.max(0, show.totalSeats - getBookedSeats(showId));
+}
+
+export function bookSeats(showId: number, qty: number): { ok: boolean; error?: string; booking?: Booking } {
+  const shows = getShows();
+  const show = shows.find((s) => s.id === showId);
+  if (!show) return { ok: false, error: "Show not found" };
+  if (qty <= 0) return { ok: false, error: "Quantity must be positive" };
+  const available = getAvailableSeats(showId);
+  if (qty > available) return { ok: false, error: `Only ${available} seats left` };
+  const list = getAllBookings();
+  const next: Booking = { id: Date.now(), showId, qty, createdAt: new Date().toISOString() };
+  list.push(next);
+  setAllBookings(list);
+  return { ok: true, booking: next };
+}
+
+export function refundSeats(bookingId: number): { ok: boolean; error?: string } {
+  const list = getAllBookings();
+  const idx = list.findIndex((b) => b.id === bookingId);
+  if (idx < 0) return { ok: false, error: "Booking not found" };
+  list.splice(idx, 1);
+  setAllBookings(list);
+  return { ok: true };
 }
