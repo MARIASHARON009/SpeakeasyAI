@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import ThemeSwitcher from "@/components/theme/ThemeSwitcher";
 
 export const SiteHeader = () => {
   const pathname = usePathname();
@@ -46,6 +47,7 @@ export const SiteHeader = () => {
         </nav>
         {/* Desktop auth actions */}
         <div className="hidden md:flex items-center gap-2">
+          <ThemeSwitcher />
           <Link href="/login">
             <Button variant="ghost" size="sm" className="rounded-md">Login</Button>
           </Link>
@@ -55,6 +57,7 @@ export const SiteHeader = () => {
         </div>
         {/* Mobile actions */}
         <div className="md:hidden flex items-center gap-2">
+          <ThemeSwitcher />
           <Link href="/login">
             <Button size="sm" variant="ghost">Login</Button>
           </Link>
