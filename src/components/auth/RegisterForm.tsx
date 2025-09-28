@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export const RegisterForm = () => {
   const router = useRouter();
@@ -28,18 +29,20 @@ export const RegisterForm = () => {
       return;
     }
 
-    startTransition(() => {
-      // Fake registration: store minimal profile in localStorage
-      const usersRaw = localStorage.getItem("demo_users") || "[]";
-      const users = JSON.parse(usersRaw) as Array<{ name: string; email: string }>; 
-      if (users.find((u) => u.email === email)) {
-        toast.error("Email already registered (demo)");
+    startTransition(async () => {
+      const { error } = await authClient.signUp.email({
+        email,
+        name,
+        password,
+      });
+
+      if (error?.code) {
+        const map: Record<string, string> = { USER_ALREADY_EXISTS: "Email already registered" };
+        toast.error(map[error.code] || "Registration failed");
         return;
       }
-      users.push({ name, email });
-      localStorage.setItem("demo_users", JSON.stringify(users));
 
-      toast.success("Account created! Please sign in.");
+      toast.success("Account created! Please check your email to verify, then sign in.");
       router.push("/login?registered=true");
     });
   };

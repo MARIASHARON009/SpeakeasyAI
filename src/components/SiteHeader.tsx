@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ThemeSwitcher from "@/components/theme/ThemeSwitcher";
+import { authClient, useSession } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export const SiteHeader = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, isPending, refetch } = useSession();
   const nav = [
     { href: "/", label: "Home" },
     { href: "/speaker", label: "Speaker" },
@@ -17,6 +21,23 @@ export const SiteHeader = () => {
     { href: "/about", label: "About" },
     { href: "/faq", label: "FAQ" },
   ];
+
+  const handleSignOut = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("bearer_token") : "";
+    const { error } = await authClient.signOut({
+      fetchOptions: {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    });
+    if (error?.code) {
+      toast.error(error.code);
+      return;
+    }
+    localStorage.removeItem("bearer_token");
+    toast.success("Signed out");
+    refetch();
+    router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -48,22 +69,41 @@ export const SiteHeader = () => {
         {/* Desktop auth actions */}
         <div className="hidden md:flex items-center gap-2">
           <ThemeSwitcher />
-          <Link href="/login">
-            <Button variant="ghost" size="sm" className="rounded-md">Login</Button>
-          </Link>
-          <Link href="/register">
-            <Button size="sm" className="rounded-md">Register</Button>
-          </Link>
+          {isPending ? null : session?.user ? (
+            <>
+              <span className="text-sm text-muted-foreground max-w-[14ch] truncate" title={session.user.email || session.user.name || "Account"}>
+                {session.user.name || session.user.email}
+              </span>
+              <Button size="sm" variant="ghost" className="rounded-md" onClick={handleSignOut}>
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="rounded-md">Login</Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm" className="rounded-md">Register</Button>
+              </Link>
+            </>
+          )}
         </div>
         {/* Mobile actions */}
         <div className="md:hidden flex items-center gap-2">
           <ThemeSwitcher />
-          <Link href="/login">
-            <Button size="sm" variant="ghost">Login</Button>
-          </Link>
-          <Link href="/register">
-            <Button size="sm">Register</Button>
-          </Link>
+          {isPending ? null : session?.user ? (
+            <Button size="sm" variant="ghost" onClick={handleSignOut}>Sign out</Button>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button size="sm" variant="ghost">Login</Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm">Register</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

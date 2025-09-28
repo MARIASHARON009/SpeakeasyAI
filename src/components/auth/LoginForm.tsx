@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -24,16 +25,35 @@ export const LoginForm = () => {
       toast.error("Please enter email and password");
       return;
     }
-    startTransition(() => {
-      // Fake auth: store a demo bearer token
-      if (remember) {
-        localStorage.setItem("bearer_token", "demo_token_vintage_theme");
-      } else {
-        // session-like: still set for demo
-        localStorage.setItem("bearer_token", "demo_token_vintage_theme");
+    const redirect = search.get("redirect") || "/";
+    startTransition(async () => {
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe: remember,
+        callbackURL: redirect,
+      });
+      if (error?.code) {
+        toast.error("Invalid email or password. Please make sure you have already registered and try again.");
+        return;
       }
-      toast.success("Welcome back! Logged in (demo)");
-      const redirect = search.get("redirect") || "/";
+      toast.success("Signed in successfully");
+      router.push(redirect);
+    });
+  };
+
+  const onLinkedIn = async () => {
+    const redirect = search.get("redirect") || "/";
+    startTransition(async () => {
+      const { error } = await authClient.signIn.social({
+        provider: "linkedin",
+        callbackURL: redirect,
+      } as any);
+      if (error?.code) {
+        toast.error("LinkedIn sign-in failed");
+        return;
+      }
+      // Redirect will occur via provider; as fallback:
       router.push(redirect);
     });
   };
@@ -43,7 +63,7 @@ export const LoginForm = () => {
       <CardHeader>
         <CardTitle className="text-2xl tracking-tight">Sign in</CardTitle>
         <CardDescription>
-          Vintage-styled access. Don\'t have an account? {" "}
+          Vintage-styled access. Don't have an account? {" "}
           <Link href="/register" className="underline decoration-dotted underline-offset-4 hover:text-primary">Register</Link>
         </CardDescription>
       </CardHeader>
@@ -62,12 +82,17 @@ export const LoginForm = () => {
               <Checkbox checked={remember} onCheckedChange={(v) => setRemember(Boolean(v))} />
               Remember me
             </label>
-            <span className="text-xs text-muted-foreground">Demo only</span>
+            <span className="text-xs text-muted-foreground">Secure auth</span>
           </div>
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? "Signing in..." : "Sign in"}
           </Button>
         </form>
+        <div className="mt-3 grid gap-2">
+          <Button type="button" variant="secondary" onClick={onLinkedIn} disabled={isPending}>
+            Continue with LinkedIn
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
