@@ -28,10 +28,17 @@ export const RegisterForm = () => {
       toast.error("Passwords do not match");
       return;
     }
+    // Enforce kristujayanti.com email domain
+    const normalized = email.trim().toLowerCase();
+    const allowedDomain = "@kristujayanti.com";
+    if (!normalized.endsWith(allowedDomain)) {
+      toast.error(`Only ${allowedDomain} emails can register`);
+      return;
+    }
 
     startTransition(async () => {
       const { error } = await authClient.signUp.email({
-        email,
+        email: normalized,
         name,
         password,
       });
@@ -64,7 +71,7 @@ export const RegisterForm = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@kristujayanti.com" autoComplete="email" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
