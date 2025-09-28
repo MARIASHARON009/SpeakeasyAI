@@ -37,9 +37,22 @@ export const SiteHeader = () => {
             </Link>
           ))}
         </nav>
-        <div className="md:hidden">
-          <Link href="/speaker">
-            <Button size="sm">Get Started</Button>
+        {/* Desktop auth actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <Link href="/login">
+            <Button variant="ghost" size="sm" className="rounded-md">Login</Button>
+          </Link>
+          <Link href="/register">
+            <Button size="sm" className="rounded-md">Register</Button>
+          </Link>
+        </div>
+        {/* Mobile actions */}
+        <div className="md:hidden flex items-center gap-2">
+          <Link href="/login">
+            <Button size="sm" variant="ghost">Login</Button>
+          </Link>
+          <Link href="/register">
+            <Button size="sm">Register</Button>
           </Link>
         </div>
       </div>
