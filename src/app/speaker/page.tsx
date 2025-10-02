@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSpeakers, saveSpeaker, getSubmissions, saveSubmission, Speaker } from "@/lib/storage";
-import { getProposalFeedback } from "@/components/speakeasy/ProposalBot";
 import QrPreview from "@/components/speakeasy/QrPreview";
 import CertificateCanvas from "@/components/speakeasy/CertificateCanvas";
+import AIProposalBot from "@/components/speakeasy/AIProposalBot";
+import AIAssistant from "@/components/speakeasy/AIAssistant";
 import { toast } from "sonner";
 
 export default function SpeakerPage() {
@@ -33,8 +34,6 @@ export default function SpeakerPage() {
   }, []);
 
   const selectedSpeaker = useMemo(() => speakers.find(s => s.id === Number(selectedSpeakerId)), [speakers, selectedSpeakerId]);
-
-  const feedback = useMemo(() => getProposalFeedback(title, abstract, track), [title, abstract, track]);
 
   function onRegisterSpeaker(e: React.FormEvent) {
     e.preventDefault();
@@ -80,7 +79,7 @@ export default function SpeakerPage() {
     <main className="container mx-auto px-6 py-10 space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Speaker Portal</h1>
-        <p className="text-muted-foreground">Register yourself and submit a session proposal. ProposalBot will guide you.</p>
+        <p className="text-muted-foreground">Register yourself and submit a session proposal. AI-powered ProposalBot will guide you.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -164,34 +163,13 @@ export default function SpeakerPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>ProposalBot feedback</CardTitle>
-            <CardDescription>Live tips to improve your proposal</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">Score</div>
-              <div className="text-3xl font-semibold">{feedback.score}/100</div>
-              <div className="mt-2 text-sm">
-                <div className="font-medium">Strengths</div>
-                <ul className="list-disc ml-5 space-y-1">
-                  {feedback.strengths.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-3 text-sm">
-                <div className="font-medium">Suggestions</div>
-                <ul className="list-disc ml-5 space-y-1">
-                  {feedback.suggestions.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <AIProposalBot
+          title={title}
+          abstract={abstract}
+          track={track}
+          onTitleSuggestion={setTitle}
+          onAbstractImprovement={setAbstract}
+        />
 
         <Card>
           <CardHeader>
@@ -227,6 +205,8 @@ export default function SpeakerPage() {
           </CardContent>
         </Card>
       </div>
+
+      <AIAssistant />
     </main>
   );
 }
