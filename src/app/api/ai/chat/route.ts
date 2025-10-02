@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,13 +12,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
+        { error: 'Gemini API key not configured' },
         { status: 500 }
       );
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
     const systemPrompt = `You are SpeakeasyAI Assistant, a helpful AI that guides users through the SpeakeasyAI platform for managing event speakers and sessions.
 
@@ -31,35 +35,19 @@ Platform Features:
 
 Be helpful, concise, and specific. Guide users to the right features. If asked about proposals, explain how ProposalBot works. Keep responses under 100 words unless more detail is needed.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...(context || []),
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 300,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
-      return NextResponse.json(
-        { error: 'AI service temporarily unavailable' },
-        { status: 503 }
-      );
+    // Build conversation history
+    let fullPrompt = systemPrompt + '\n\n';
+    if (context && context.length > 0) {
+      fullPrompt += 'Previous conversation:\n';
+      context.forEach((msg: any) => {
+        fullPrompt += `${msg.role}: ${msg.content}\n`;
+      });
     }
+    fullPrompt += `\nUser: ${message}\nAssistant:`;
 
-    const data = await response.json();
-    const reply = data.choices[0].message.content;
+    const result = await model.generateContent(fullPrompt);
+    const response = result.response;
+    const reply = response.text();
 
     return NextResponse.json({ reply });
   } catch (error) {

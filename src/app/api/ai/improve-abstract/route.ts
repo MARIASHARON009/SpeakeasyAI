@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,13 +12,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
+        { error: 'Gemini API key not configured' },
         { status: 500 }
       );
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
     const prompt = `Improve this conference session abstract to make it more compelling and professional. The improved version should:
 - Be 100-200 words
@@ -32,34 +36,9 @@ Track: ${track || 'General'}
 
 Respond with just the improved abstract text, no additional commentary.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a conference content expert who writes compelling abstracts.' },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
-      return NextResponse.json(
-        { error: 'AI service temporarily unavailable' },
-        { status: 503 }
-      );
-    }
-
-    const data = await response.json();
-    const improved = data.choices[0].message.content.trim();
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const improved = response.text().trim();
 
     return NextResponse.json({ improved });
   } catch (error) {
