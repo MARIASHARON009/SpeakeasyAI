@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
 import { Mic2, ClipboardList, ArrowRight, Sparkles, CheckCircle2, Timer, Shield } from "lucide-react";
 
 export default function Home() {
@@ -18,12 +17,7 @@ export default function Home() {
           }}
         />
         <div className="container mx-auto px-6 py-16 md:py-24">
-          <motion.div
-            className="max-w-3xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
+          <div className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs text-muted-foreground backdrop-blur-sm">
               <span className="size-1.5 rounded-full bg-emerald-500" />
               Hackathon-ready prototype
@@ -48,47 +42,34 @@ export default function Home() {
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       <section className="container mx-auto px-6 pb-20 grid gap-6 md:grid-cols-3">
-        <motion.div
-          className="contents"
-          initial="hidden"
-          animate="show"
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
-        >
-          <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>
-            <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
-              <CardHeader>
-                <CardTitle>ProposalBot feedback</CardTitle>
-                <CardDescription>Get instant tips to improve your session title and abstract.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                Simple rules-based feedback, no API keys required.
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>
-            <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
-              <CardHeader>
-                <CardTitle>Review & approvals</CardTitle>
-                <CardDescription>Managers can approve/reject and auto-notify speakers.</CardDescription>
-              </CardHeader>
-              <CardContent>Uses localStorage for data, perfect for demos.</CardContent>
-            </Card>
-          </motion.div>
-          <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>
-            <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
-              <CardHeader>
-                <CardTitle>Agenda, QR & Certificates</CardTitle>
-                <CardDescription>Build agendas, generate QR codes, and downloadable certificates.</CardDescription>
-              </CardHeader>
-              <CardContent>All in your browser.</CardContent>
-            </Card>
-          </motion.div>
-        </motion.div>
+        <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
+          <CardHeader>
+            <CardTitle>ProposalBot feedback</CardTitle>
+            <CardDescription>Get instant tips to improve your session title and abstract.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            Simple rules-based feedback, no API keys required.
+          </CardContent>
+        </Card>
+        <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
+          <CardHeader>
+            <CardTitle>Review & approvals</CardTitle>
+            <CardDescription>Managers can approve/reject and auto-notify speakers.</CardDescription>
+          </CardHeader>
+          <CardContent>Uses localStorage for data, perfect for demos.</CardContent>
+        </Card>
+        <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
+          <CardHeader>
+            <CardTitle>Agenda, QR & Certificates</CardTitle>
+            <CardDescription>Build agendas, generate QR codes, and downloadable certificates.</CardDescription>
+          </CardHeader>
+          <CardContent>All in your browser.</CardContent>
+        </Card>
       </section>
 
       {/* How it works */}
