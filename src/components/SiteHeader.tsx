@@ -1,113 +1,168 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import ThemeSwitcher from "@/components/theme/ThemeSwitcher";
-import { authClient, useSession } from "@/lib/auth-client";
+import { Menu, X, Moon, Sun, Palette } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSession, authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-export const SiteHeader = () => {
-  const pathname = usePathname();
-  const router = useRouter();
+export default function SiteHeader() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark" | "rose">("light");
   const { data: session, isPending, refetch } = useSession();
-  const nav = [
-    { href: "/", label: "Home" },
-    { href: "/speaker", label: "Speaker" },
-    { href: "/manager", label: "Manager" },
-    { href: "/payments", label: "Payments" },
-    { href: "/manager/config", label: "Config" },
-    { href: "/about", label: "About" },
-    { href: "/faq", label: "FAQ" },
-  ];
+  const router = useRouter();
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "rose" | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
+  }, []);
+
+  const applyTheme = (newTheme: "light" | "dark" | "rose") => {
+    document.documentElement.classList.remove("light", "dark", "theme-rose");
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (newTheme === "rose") {
+      document.documentElement.classList.add("theme-rose");
+    }
+    localStorage.setItem("theme", newTheme);
+  };
+
+  const cycleTheme = () => {
+    const nextTheme = theme === "light" ? "dark" : theme === "dark" ? "rose" : "light";
+    setTheme(nextTheme);
+    applyTheme(nextTheme);
+  };
 
   const handleSignOut = async () => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("bearer_token") : "";
-    const { error } = await authClient.signOut({
-      fetchOptions: {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    });
+    const { error } = await authClient.signOut();
     if (error?.code) {
       toast.error(error.code);
-      return;
+    } else {
+      localStorage.removeItem("bearer_token");
+      refetch();
+      router.push("/");
+      toast.success("Signed out successfully");
     }
-    localStorage.removeItem("bearer_token");
-    toast.success("Signed out");
-    refetch();
-    router.push("/");
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-3">
-          {/* Vintage emblem */}
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border bg-card text-primary shadow-sm">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-              <path d="M12 3l2.39 4.84L20 9.27l-4 3.9.94 5.48L12 16.9l-4.94 1.75L8 13.17l-4-3.9 5.61-1.43L12 3z" fill="currentColor" />
-            </svg>
-          </span>
-          <span className="logo-font text-lg font-semibold tracking-tight">SpeakeasyAI</span>
-        </Link>
-        <nav className="hidden gap-1 md:flex">
-          {nav.map((item) => (
-            <Link key={item.href} href={item.href}>
-              <Button
-                variant={pathname === item.href ? "default" : "ghost"}
-                className={cn(
-                  "rounded-md",
-                  pathname === item.href && "bg-primary text-primary-foreground"
-                )}
-              >
-                {item.label}
-              </Button>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-6">
+        <div className="flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="logo-font text-xl font-bold">SpeakeasyAI</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/speaker" className="text-sm font-medium hover:text-primary transition-colors">
+              Speaker
             </Link>
-          ))}
-        </nav>
-        {/* Desktop auth actions */}
-        <div className="hidden md:flex items-center gap-2">
-          <ThemeSwitcher />
-          {isPending ? null : session?.user ? (
-            <>
-              <span className="text-sm text-muted-foreground max-w-[14ch] truncate" title={session.user.email || session.user.name || "Account"}>
-                {session.user.name || session.user.email}
-              </span>
-              <Button size="sm" variant="ghost" className="rounded-md" onClick={handleSignOut}>
-                Sign out
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link href="/login">
-                <Button variant="ghost" size="sm" className="rounded-md">Login</Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm" className="rounded-md">Register</Button>
-              </Link>
-            </>
-          )}
+            <Link href="/manager" className="text-sm font-medium hover:text-primary transition-colors">
+              Manager
+            </Link>
+            
+            {/* Theme Switcher */}
+            <Button variant="ghost" size="icon" onClick={cycleTheme} title={`Current: ${theme}`}>
+              {theme === "light" && <Sun className="size-5" />}
+              {theme === "dark" && <Moon className="size-5" />}
+              {theme === "rose" && <Palette className="size-5" />}
+            </Button>
+
+            {/* Auth Actions */}
+            {isPending ? (
+              <div className="h-9 w-20 animate-pulse bg-muted rounded" />
+            ) : session?.user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">
+                  {session.user.name || session.user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  Sign out
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/register">Register</Link>
+                </Button>
+              </div>
+            )}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Button variant="ghost" size="icon" onClick={cycleTheme}>
+              {theme === "light" && <Sun className="size-5" />}
+              {theme === "dark" && <Moon className="size-5" />}
+              {theme === "rose" && <Palette className="size-5" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </Button>
+          </div>
         </div>
-        {/* Mobile actions */}
-        <div className="md:hidden flex items-center gap-2">
-          <ThemeSwitcher />
-          {isPending ? null : session?.user ? (
-            <Button size="sm" variant="ghost" onClick={handleSignOut}>Sign out</Button>
-          ) : (
-            <>
-              <Link href="/login">
-                <Button size="sm" variant="ghost">Login</Button>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t">
+            <nav className="flex flex-col space-y-3">
+              <Link
+                href="/speaker"
+                className="text-sm font-medium hover:text-primary transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Speaker
               </Link>
-              <Link href="/register">
-                <Button size="sm">Register</Button>
+              <Link
+                href="/manager"
+                className="text-sm font-medium hover:text-primary transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Manager
               </Link>
-            </>
-          )}
-        </div>
+              
+              {isPending ? (
+                <div className="h-9 w-full animate-pulse bg-muted rounded" />
+              ) : session?.user ? (
+                <>
+                  <div className="text-sm text-muted-foreground py-2 border-t">
+                    {session.user.name || session.user.email}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleSignOut} className="w-full">
+                    Sign out
+                  </Button>
+                </>
+              ) : (
+                <div className="flex flex-col gap-2 pt-2 border-t">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      Register
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
-};
-
-export default SiteHeader;
+}
