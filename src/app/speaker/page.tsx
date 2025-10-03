@@ -13,6 +13,7 @@ import CertificateCanvas from "@/components/speakeasy/CertificateCanvas";
 import AIProposalBot from "@/components/speakeasy/AIProposalBot";
 import AIAssistant from "@/components/speakeasy/AIAssistant";
 import { toast } from "sonner";
+import { QrCode, Award } from "lucide-react";
 
 export default function SpeakerPage() {
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
@@ -162,7 +163,7 @@ export default function SpeakerPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <AIProposalBot
           title={title}
           abstract={abstract}
@@ -173,25 +174,31 @@ export default function SpeakerPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Your QR code</CardTitle>
-            <CardDescription>Use for check-in or sharing</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              Your QR Code
+            </CardTitle>
+            <CardDescription>Scannable code for check-in and event registration</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedSpeaker ? (
-              <div className="flex flex-col items-center gap-3">
-                <QrPreview data={qrData || selectedSpeaker.email} size={200} />
-                <div className="text-xs text-muted-foreground break-all text-center">{qrData || selectedSpeaker.email}</div>
-              </div>
+              <QrPreview data={qrData || selectedSpeaker.email} size={200} />
             ) : (
-              <div className="text-sm text-muted-foreground">Select or register a speaker to see QR.</div>
+              <div className="flex flex-col items-center justify-center min-h-[300px] text-center p-6 border-2 border-dashed border-muted rounded-lg">
+                <QrCode className="h-12 w-12 text-muted-foreground mb-3" />
+                <p className="text-sm text-muted-foreground">Select or register a speaker to generate your QR code</p>
+              </div>
             )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Download certificate</CardTitle>
-            <CardDescription>Auto-fills with your latest submission</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5" />
+              Speaker Certificate
+            </CardTitle>
+            <CardDescription>Professional certificate for your presentation</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedSpeaker ? (
@@ -200,7 +207,10 @@ export default function SpeakerPage() {
                 sessionTitle={title || "Conference Speaker"}
               />
             ) : (
-              <div className="text-sm text-muted-foreground">Select a speaker to generate certificate.</div>
+              <div className="flex flex-col items-center justify-center min-h-[300px] text-center p-6 border-2 border-dashed border-muted rounded-lg">
+                <Award className="h-12 w-12 text-muted-foreground mb-3" />
+                <p className="text-sm text-muted-foreground">Select a speaker to generate a professional certificate</p>
+              </div>
             )}
           </CardContent>
         </Card>
